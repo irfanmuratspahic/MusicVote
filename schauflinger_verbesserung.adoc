@@ -1,0 +1,223 @@
+== Verbesserung 2. SEW - Test
+=== Schauflinger Hanna
+---
+.InitBean.java
+----
+Wird nicht benötigt, kann also gelöscht werden!
+----
+
+.ItemDao.java
+[source,java]
+----
+    public List<Item> findAllByOrderingId(Long id) {
+        return em.createNamedQuery("Item.findByOrderingId", Item.class)
+                .setParameter("ORD_ID", id)
+                .getResultList();
+    }
+----
+
+.OrderingDao.java
+[source,java]
+----
+    public List<Ordering> listAllOrders() {
+        return em.createNamedQuery("Ordering.findAll", Ordering.class).getResultList();
+    }
+
+    public Ordering findOrderingById(Long id) {
+        return em.find(Ordering.class, id);
+    }
+----
+
+.ProductDao.java
+[source,java]
+----
+public List<Product> listAll() {
+        return em.createNamedQuery("Product.findAll", Product.class).getResultList();
+    }
+
+    public Product findProdcutById(Long id) {
+        try {
+            return em.createNamedQuery("Product.findById", Product.class)
+                    .setParameter("ID", id)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Transactional
+    public Product createProduct(Product product) {
+        return em.merge(product);
+    }
+
+    @Transactional
+    public int deleteProductById(Long id) {
+        return em.createNamedQuery("Product.deletById").setParameter("ID", id).executeUpdate();
+    }
+
+    @Transactional
+    public void updateProduct(Product product) {
+        em.merge(product);
+    }
+----
+
+CustomerDao.java wird nicht benötigt, weil man keine Zugriffe auf Customer braucht. +
+In den einzelnen DAOs sind lediglich die Zugriffsmethoden zu erstellen.
+*Denkfehler meinerseits*
+
+.OrderingEndpoint.java
+[source,java]
+----
+    @GET
+    public Response listAllOrders() {
+        return Response.ok(orderingDao.listAllOrders()).build();
+    }
+
+    @GET
+    @Path("{id}")
+    public Response findByOrderingId(@PathParam("id") Long id) {
+        Ordering ordering = orderingDao.findOrderingById(id);
+
+        if (ordering != null) {
+            List<Item> items = itemDao.findAllByOrderingId(id);
+
+            JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+            for (Item item : items) {
+                System.out.println(item);
+                arrayBuilder.add(item.getJsonObjectBuilder().build());
+            }
+
+            JsonObject finalOrdering = ordering.getJsonObjectBuilder()
+                    .add("items", arrayBuilder)
+                    .build();
+
+            return Response.ok(finalOrdering).build();
+        } else {
+            return Response.status(404).build(); //einfachere Lösung für Fehlermeldung
+        }
+    }
+----
+.Versuch Nummer 1 für die Fehlermeldung
+[source,java]
+----
+try {
+            return Response.ok(new Product()).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ex.getMessage()).build();
+        }
+----
+
+.OrderingEndpoint.java
+[source,java]
+----
+@Transactional
+    @DELETE
+    @Path("{id}")
+    public Response deleteProduct(@PathParam("id") Long id) {
+        int deletedRows = productDao.deleteProductById(id);
+        System.out.println(deletedRows);
+        if (deletedRows > 0) {
+            return Response.ok(deletedRows).build();
+        } else {
+            return Response.status(404).build();
+        }
+    }
+
+    @GET
+    public Response listAll() {
+        return Response.ok(productDao.listAll()).build();
+    }
+
+    @GET
+    @Path("{id}")
+    public Response findById(@PathParam("id") Long id) {
+        Product product = productDao.findProdcutById(id);
+
+        if (product != null) {
+            return Response.ok(product).build();
+        } else {
+            return Response.status(404).build();
+        }
+    }
+
+    @POST
+    public Response insert(Product product) {
+        return Response.ok(productDao.createProduct(product)).build();
+    }
+
+    @PUT
+    public Response updateProduct(Product product) {
+        productDao.updateProduct(product);
+        return Response.ok().build();
+    }
+
+    @Transactional
+    public void readFromCsv(String filename, Function<String[], Object> mapping) {
+        InputStream is = getClass().getClassLoader().getResourceAsStream("/" + filename);
+        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+        br.lines()
+                .skip(1)
+                .map(s -> s.split(","))
+                .sorted(Comparator.comparing(o -> o[0]))
+                .map(mapping)
+                .forEach(em::merge);
+    }
+
+    @Path("init")
+    @GET
+    public Response init() {
+
+        readFromCsv("customer.csv", a -> new Customer(
+                a[1].replace("\"", ""),
+                a[2].replace("\"", ""),
+                a[3].replace("\"", ""),
+                a[4].replace("\"", "")
+        ));
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.mm.yyyy");
+        readFromCsv("ordering.csv", a -> {
+
+            for (int i = 2; i <= 4; i++) {
+                String[] dateArray = a[i].split("\\.");
+                if (dateArray.length == 3) {
+                    if (Integer.parseInt(dateArray[2]) < 50) {
+                        dateArray[2] = "20" + dateArray[2];
+                    } else {
+                        dateArray[2] = "19" + dateArray[2];
+                    }
+                    a[i] = String.join(".", dateArray);
+                }
+            }
+
+            return new Ordering(
+                    em.find(Customer.class, Long.valueOf(a[1])),
+                    a[2].isEmpty() ? null : LocalDate.parse(a[2], dateTimeFormatter),
+                    a[3].isEmpty() ? null : LocalDate.parse(a[3], dateTimeFormatter),
+                    a[4].isEmpty() ? null : LocalDate.parse(a[4], dateTimeFormatter),
+                    Double.parseDouble(a[5])
+            );
+        });
+
+        readFromCsv("product.csv", a -> new Product(
+                a[1].replace("\"", ""),
+                Double.parseDouble(a[2]),
+                Integer.parseInt(a[3]),
+                Integer.parseInt(a[4]),
+                Integer.parseInt(a[5]),
+                a[6].equals("1")
+        ));
+
+        readFromCsv("item.csv", a -> new Item(
+                em.find(Ordering.class, Long.parseLong(a[1])),
+                em.find(Product.class, Long.parseLong(a[2])),
+                Double.parseDouble(a[3]),
+                Integer.parseInt(a[4]),
+                Double.parseDouble(a[5])
+        ));
+
+        return Response.ok().build();
+    }
+
+----
+readFromCsv ist nicht nötig in den einzelnen DAOs zu machen. Im OrderingEndpoint ist jetzt alles zusammengefasst.
+Methoden DELETE, init, listAll und findById wurden richtig gestellt. Update und insert wurden hinzugefügt.
