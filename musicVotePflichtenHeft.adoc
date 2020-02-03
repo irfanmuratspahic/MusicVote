@@ -66,7 +66,8 @@ Ziel des Use Cases: Als User möchte ich ein Lied zur Playlist hinzufügen. +
 Vorbedingung: User braucht ein Smartphone. +
 Nachbedingung bei erfolgreicher Ausführung: Man muss mit dem richitgen WLan verbunden sein.
 
-Beschreibung: +
+Beschreibung:
+
 * mit WLan verbinden +
 * richtige Webseite aufrufen +
 * Song suchen +
@@ -83,7 +84,8 @@ Ziel des Use Cases: Als User möchte ich ein Lied nach oben voten. +
 Vorbedingung: User braucht ein Smartphone. +
 Nachbedingung bei erfolgreicher Ausführung: Man muss mit dem richitgen WLan verbunden sein.
 
-Beschreibung: +
+Beschreibung:
+
 * mit WLan verbinden +
 * richtige Webseite aufrufen +
 * für Song voten
@@ -98,7 +100,8 @@ Ziel des Use Cases: Als Admin möchte ich ein Lied nicht hören. +
 Vorbedingung: Admin muss auf einem Bildschirm laufen. +
 Nachbedingung bei erfolgreicher Ausführung: Admin muss das Passwort wissen.
 
-Beschreibung: +
+Beschreibung:
+
 * Seite aufrufen +
 * Anmelden +
 * Song überspringen
@@ -113,7 +116,8 @@ Ziel des Use Cases: Als Admin möchte ich ein aus der Playlist löschen. +
 Vorbedingung: Admin muss auf einem Bildschirm laufen. +
 Nachbedingung bei erfolgreicher Ausführung: Admin muss das Passwort wissen.
 
-Beschreibung: +
+Beschreibung:
+
 * Seite aufrufen +
 * Anmelden +
 * Lied löschen
@@ -122,7 +126,7 @@ Beteiligte Nutzer: Administrator der Applikation.
 
 Auslösendes Ereignis: Wenn ein Lied nicht angebracht ist oder es dem Admin nicht gefällt.
 
-image::usecase.jpeg[UseCaseDiagram]
+image::usecase(1).jpg[UseCaseDiagramm]
 
 === Nicht-funktionale Anforderungen
 Benutzbarkeitsanforderung:
