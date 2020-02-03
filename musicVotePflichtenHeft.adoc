@@ -126,7 +126,7 @@ Beteiligte Nutzer: Administrator der Applikation.
 
 Auslösendes Ereignis: Wenn ein Lied nicht angebracht ist oder es dem Admin nicht gefällt.
 
-image::usecase(1).jpg[UseCaseDiagramm]
+image::usecase.jpg[UseCaseDiagramm]
 
 === Nicht-funktionale Anforderungen
 Benutzbarkeitsanforderung:
