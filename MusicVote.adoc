@@ -1,0 +1,57 @@
+== Dokumentation Music Voting
+Aigner Lara +
+Muratspahic Irfan +
+Schauflinger Hanna +
+
+Für das Builden und Starten des Systems gibt es ein Shell-Script im Root des Repositories. Bevor man das Shell-Skript ausführt, muss im docker-compose.yml der Pfad der Mp3-Files für den eigenen Rechner angepasst werden.  
+----
+chmod +x startup.sh
+ ./startup.sh
+Folgende Inputs eingeben:
+ip-address of Server
+Ip-Adresse vom Rechner auf dem das Programm gestartet wird
+init of database: (true/false)
+true
+password for admin:
+passme
+folder of mp3 files:
+Pfad zum Ordner in dem die Mp3-Files liegen
+WLAN SSID:
+Name des verwendeten Wlans
+WLAN password:
+Passwort des verwendeten Wlans
+----
+Nach diesen Eingaben wird eine Betrittseite (Port: 8083), der AbspielClient (Port: 8082) und der Mobile Client (Port: 8081) sowie der Server gebuildet und gestartet. Ab diesem Zeitpunkt ist MusicVoting einsatzbereit. Die Beitrittseite auf Port 8083 kann auf einem Bildschirm für die Gäste angezeigt werden. Diese können sich dann per QR Code mit dem WLAN verbinden und auf die Mobile Client Seite gelangen.
+
+
+=== Tools die vorab installiert sein müssen
+
+. maven
+. docker
+. docker-compose
+
+=== Verwendete Technologien
+
+* JakartaEE
+* DerbyDB
+* Docker
+* VueJS
+* CSS
+* HTML5
+
+=== Aktueller Stand 
+
+MusicVoting ist einsatzbereit, jedoch ist die Auswahl der Musik begrenzt, da zurzeit nur die am Abspielclient lokal gespeicherten mp3-files zur Verfügung stehen. Funktionen wie Songs suchen und hinzufügen sowie voten und entvoten stehen dem User zur Verfügung. Der Admin, der sich davor anmelden hat müssen, kann zusätzlich Songs aus der laufenden Playlist entfernen und Songs überspringen. Man kann nur einen Vote pro Handy abgeben, ausser im Inkognito Modus, dort können User am selben Handy für ein Lied mehrmals voten (funktioniert mithilfe von Cookies). Im normalen Modus funktioniert das auch Tab übergreifend. Die Songs können durchsucht werden indem man nach dem Autor oder beziehungsweise und dem Titel sucht. Rechtschreibfehler werden nicht erkannt (wäre möglich mit Elasticsearch). Falls keiner einen Song zur Warteschlange hinzufügt wird ein zufälliger Song, aus den Liedern die zur Verfügung stehen, gespielt. Wenn ein Song zur Playlist hinzugefügt wurde dann wird diese neu sortiert aber nicht neu aufgerufen. 
+
+=== Was noch kommt
+
+Umstieg auf Youtube Stream damit jeder User jedes Lied hinzufügen kann,
+ohne eingeschränkt zu sein. Problem dabei könnte sein, dass auch Videos
+die keine Musik sind hinzugefügt werden können. Selbst in der Kategorie Musik
+ist nicht nur Musik. Spotify wäre auch eine Möglichkeit, ist aber
+kostenpflichtig. Werbungen in Youtube können ganz einfach mit einem AdBlocker
+umgangen werden. Video passend zum jeweiligen Song wird am Abspielclient
+angezeigt. Vorteil davon ist auch, wenn keiner etwas hinzufügt wird automatisch
+von Youtube mittels Autoplay das nächste Lied abgespielt.
+
+
